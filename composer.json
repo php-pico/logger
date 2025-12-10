@@ -4,7 +4,6 @@
 	"type"             : "library",
 	"license"          : "MIT",
 	"minimum-stability": "stable",
-	"version"          : "0.1.0",
 	"scripts"          : {
 		"mago": "mago analyze",
 		"test": "phpunit -c phpunit.xml.dist",

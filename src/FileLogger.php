@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PhpPico\Logger;
 
 use Override;
-use Psr\Log\LoggerInterface;
 use Stringable;
+use Psr\Log\InvalidArgumentException;
 
-final class FileLogger extends AbstractLogger implements LoggerInterface
+final class FileLogger extends AbstractLogger
 {
     public function __construct(
         public readonly string $path,
@@ -44,6 +44,11 @@ final class FileLogger extends AbstractLogger implements LoggerInterface
     #[Override]
     public function log($level, $message, array $context = []): void
     {
-        file_put_contents($this->getFilePath(), $this->format(level: $level, message: $message, context: $context), FILE_APPEND);
+        if (!$this->isLevelValid($level)) {
+            throw new InvalidArgument(sprintf('Invalid log level provided: %s', $level));
+        }
+
+        $message = $this->format(level: $level, message: $message, context: $context);
+        file_put_contents($this->getFilePath(), $message, FILE_APPEND);
     }
 }

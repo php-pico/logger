@@ -14,7 +14,7 @@ final class FileLoggerTest extends TestCase
     #[Test]
     public function path_is_normalized(): void
     {
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR, file: 'test.log');
+        $fileLogger = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR, 'test.log');
 
         $filePathHasMultipleSlashes = str_contains($fileLogger->getFilePath(), DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 
@@ -25,12 +25,12 @@ final class FileLoggerTest extends TestCase
     public function can_log(): void
     {
         $message    = 'test';
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+        $fileLogger = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs', 'test.log');
 
         unlink($fileLogger->getFilePath());
         $this->assertFileDoesNotExist($fileLogger->getFilePath(), 'File should not exist before logging');
 
-        $fileLogger->info(message: $message);
+        $fileLogger->info($message);
         $this->assertFileExists($fileLogger->getFilePath(), 'File should exist after logging');
 
         $logFileContents = file_get_contents($fileLogger->getFilePath());
@@ -44,15 +44,15 @@ final class FileLoggerTest extends TestCase
         $message = 'User signed in: {userId}';
         $context = compact('userId');
 
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+        $fileLogger = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs', 'test.log');
 
         unlink($fileLogger->getFilePath());
         $this->assertFileDoesNotExist($fileLogger->getFilePath(), 'File should not exist before logging');
 
-        $fileLogger->info(message: $message, context: $context);
+        $fileLogger->info($message, $context);
         $this->assertFileExists($fileLogger->getFilePath(), 'File should exist after logging');
 
-        $logFileContents = file_get_contents(filename: $fileLogger->getFilePath());
+        $logFileContents = file_get_contents($fileLogger->getFilePath());
         $this->assertStringContainsString("User signed in: $userId", (string)$logFileContents, 'Log file should contain the interpolated message');
     }
 
@@ -60,11 +60,11 @@ final class FileLoggerTest extends TestCase
     public function non_stringable_context_value_is_skipped(): void
     {
         $message    = 'User: {user}';
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+        $fileLogger = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs', 'test.log');
 
         unlink($fileLogger->getFilePath());
 
-        $fileLogger->info(message: $message, context: ['user' => ['id' => 1]]);
+        $fileLogger->info($message, ['user' => ['id' => 1]]);
 
         $logFileContents = file_get_contents($fileLogger->getFilePath());
         $this->assertStringContainsString('{user}', (string)$logFileContents, 'Non-stringable values should leave their placeholder intact');
@@ -75,13 +75,39 @@ final class FileLoggerTest extends TestCase
     {
         $exceptionMessage = 'something broke';
         $message          = 'Failed: {exception}';
-        $fileLogger       = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+        $fileLogger       = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs', 'test.log');
 
         unlink($fileLogger->getFilePath());
 
-        $fileLogger->error(message: $message, context: ['exception' => new RuntimeException($exceptionMessage)]);
+        $fileLogger->error($message, ['exception' => new RuntimeException($exceptionMessage)]);
 
         $logFileContents = file_get_contents($fileLogger->getFilePath());
         $this->assertStringContainsString("Failed: $exceptionMessage", (string)$logFileContents, 'Throwable in the exception key should render its message');
+    }
+
+    #[Test]
+    public function new_lines_between_log_entries(): void
+    {
+        $messages = [
+            'one',
+            'two',
+            'three',
+            'four',
+        ];
+
+        $fileLogger       = new FileLogger(__DIR__ . DIRECTORY_SEPARATOR . 'logs', 'test.log', 4);
+
+        unlink($fileLogger->getFilePath());
+
+        foreach ($messages as $message) {
+            $fileLogger->info($message);
+        }
+
+        $logFileContents = file_get_contents($fileLogger->getFilePath());
+        foreach ($messages as $message) {
+            $this->assertStringContainsString($message, (string)$logFileContents, sprintf('The log file should contain the message: "%s"', $message));
+        }
+
+        $this->assertStringContainsString(str_repeat(PHP_EOL, $fileLogger->newLines), (string)$logFileContents);
     }
 }

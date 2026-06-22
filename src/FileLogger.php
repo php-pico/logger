@@ -7,13 +7,21 @@ namespace PhpPico\Logger;
 use Override;
 use Stringable;
 use Psr\Log\InvalidArgumentException;
+use RuntimeException;
 
 final class FileLogger extends AbstractLogger
 {
+    /**
+     * @throws \InvalidArgumentException If $newLines is less than 1
+     */
     public function __construct(
         public readonly string $path,
         public readonly string $file,
+        public readonly int $newLines = 2,
     ) {
+        if ($newLines < 1) {
+            throw new \InvalidArgumentException('$newLines must be greater than 0');
+        }
     }
 
     /**
@@ -41,6 +49,7 @@ final class FileLogger extends AbstractLogger
      *
      * @return void
      * @throws InvalidArgumentException If the provided $level is invalid
+     * @throws RuntimeException If the log file could not be created/opened
      */
     #[Override]
     public function log(mixed $level, string|Stringable $message, array $context = []): void
@@ -49,7 +58,17 @@ final class FileLogger extends AbstractLogger
             throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));
         }
 
-        $message = $this->format($level, $message, $context);
-        file_put_contents($this->getFilePath(), $message . PHP_EOL, FILE_APPEND);
+        $file = fopen($this->getFilePath(), 'a+');
+        if (!$file) {
+            throw new RuntimeException(sprintf('Failed to create/open log file at "%s"', $this->getFilePath()));
+        }
+
+        fseek($file, 0);
+        if (trim((string)fread($file, 32))) {
+            fwrite($file, str_repeat(PHP_EOL, $this->newLines));
+        }
+
+        fwrite($file, $this->format($level, $message, $context));
+        fclose($file);
     }
 }

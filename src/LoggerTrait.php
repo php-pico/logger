@@ -6,6 +6,7 @@ namespace PhpPico\Logger;
 
 use Psr\Log\LoggerTrait as PsrLoggerTrait;
 use Stringable;
+use Throwable;
 use Psr\Log\LogLevel;
 use Psr\Log\InvalidArgumentException;
 
@@ -23,13 +24,39 @@ trait LoggerTrait
      */
     protected function interpolate(string|Stringable $message, array $context = []): string
     {
-        $result = (string)$message;
+        $replacements = [];
 
-        foreach ($context as $key => $value) {
-            $result = str_replace("{{$key}}", (string)$value, $result);
+        foreach (array_keys($context) as $key) {
+            $replacement = $this->stringifyContextValue($key, $context[$key]);
+
+            if ($replacement !== null) {
+                $replacements["{{$key}}"] = $replacement;
+            }
         }
 
-        return $result;
+        return strtr((string)$message, $replacements);
+    }
+
+    /**
+     * Casts a context value to string for interpolation, or null when it
+     * cannot be represented as a string (per PSR-3, such values are skipped).
+     *
+     * @param array-key $key
+     * @param mixed     $value
+     *
+     * @return string|null
+     */
+    protected function stringifyContextValue(string|int $key, mixed $value): ?string
+    {
+        if ($key === 'exception' && $value instanceof Throwable) {
+            return $value->getMessage();
+        }
+
+        if (is_scalar($value) || $value instanceof Stringable || $value === null) {
+            return (string)$value;
+        }
+
+        return null;
     }
 
     /**

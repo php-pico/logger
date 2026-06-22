@@ -7,6 +7,7 @@ namespace PhpPico\Logger\Tests;
 use PhpPico\Logger\FileLogger;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class FileLoggerTest extends TestCase
 {
@@ -53,5 +54,34 @@ final class FileLoggerTest extends TestCase
 
         $logFileContents = file_get_contents(filename: $fileLogger->getFilePath());
         $this->assertStringContainsString("User signed in: $userId", (string)$logFileContents, 'Log file should contain the interpolated message');
+    }
+
+    #[Test]
+    public function non_stringable_context_value_is_skipped(): void
+    {
+        $message    = 'User: {user}';
+        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+
+        unlink($fileLogger->getFilePath());
+
+        $fileLogger->info(message: $message, context: ['user' => ['id' => 1]]);
+
+        $logFileContents = file_get_contents($fileLogger->getFilePath());
+        $this->assertStringContainsString('{user}', (string)$logFileContents, 'Non-stringable values should leave their placeholder intact');
+    }
+
+    #[Test]
+    public function exception_context_key_is_interpolated_with_its_message(): void
+    {
+        $exceptionMessage = 'something broke';
+        $message          = 'Failed: {exception}';
+        $fileLogger       = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
+
+        unlink($fileLogger->getFilePath());
+
+        $fileLogger->error(message: $message, context: ['exception' => new RuntimeException($exceptionMessage)]);
+
+        $logFileContents = file_get_contents($fileLogger->getFilePath());
+        $this->assertStringContainsString("Failed: $exceptionMessage", (string)$logFileContents, 'Throwable in the exception key should render its message');
     }
 }

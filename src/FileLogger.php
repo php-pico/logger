@@ -35,20 +35,21 @@ final class FileLogger extends AbstractLogger
     /**
      * Logs with an arbitrary level. Appends to the log file. If the log file does not exist, it is created.
      *
-     * @param string                           $level
-     * @param string|Stringable                $message
-     * @param array<string, string|Stringable> $context
+     * @param mixed                   $level
+     * @param string|Stringable       $message
+     * @param array<array-key, mixed> $context
      *
      * @return void
+     * @throws InvalidArgumentException If the provided $level is invalid
      */
     #[Override]
     public function log($level, $message, array $context = []): void
     {
         if (!$this->isLevelValid($level)) {
-            throw new InvalidArgument(sprintf('Invalid log level provided: %s', $level));
+            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));
         }
 
-        $message = $this->format(level: $level, message: $message, context: $context);
-        file_put_contents($this->getFilePath(), $message, FILE_APPEND);
+        $message = $this->format($level, $message, $context);
+        file_put_contents($this->getFilePath(), $this->format($level, $message, $context), FILE_APPEND);
     }
 }

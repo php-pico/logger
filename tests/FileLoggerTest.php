@@ -13,7 +13,7 @@ final class FileLoggerTest extends TestCase
     #[Test]
     public function path_is_normalized(): void
     {
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR, file: 'test.log',);
+        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR, file: 'test.log');
 
         $filePathHasMultipleSlashes = str_contains($fileLogger->getFilePath(), DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 
@@ -24,7 +24,7 @@ final class FileLoggerTest extends TestCase
     public function can_log(): void
     {
         $message    = 'test';
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log',);
+        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
 
         unlink($fileLogger->getFilePath());
         $this->assertFileDoesNotExist($fileLogger->getFilePath(), 'File should not exist before logging');
@@ -40,10 +40,10 @@ final class FileLoggerTest extends TestCase
     public function interpolation(): void
     {
         $userId  = 1234;
-        $message = 'User signed in: ${userId}';
+        $message = 'User signed in: {userId}';
         $context = compact('userId');
 
-        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log',);
+        $fileLogger = new FileLogger(path: __DIR__ . DIRECTORY_SEPARATOR . 'logs', file: 'test.log');
 
         unlink($fileLogger->getFilePath());
         $this->assertFileDoesNotExist($fileLogger->getFilePath(), 'File should not exist before logging');

@@ -50,6 +50,6 @@ final class FileLogger extends AbstractLogger
         }
 
         $message = $this->format($level, $message, $context);
-        file_put_contents($this->getFilePath(), $this->format($level, $message, $context), FILE_APPEND);
+        file_put_contents($this->getFilePath(), $message . PHP_EOL, FILE_APPEND);
     }
 }

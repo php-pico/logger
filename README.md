@@ -37,8 +37,6 @@ Every engine is PSR-3 compliant and implements the `Psr\Log\LoggerInterface`.
 | `StderrLogger`  | Yes        | Logs to `stderr`.                         |
 | `TestLogger`    | No         | Keeps logs in-memory. Useful for testing. |
 
-**Note:**
-
 ### FileLogger
 
 Appends entries to a file, creating it if it does not exist. Entries are

@@ -9,10 +9,10 @@ use Stringable;
 use Psr\Log\InvalidArgumentException;
 use RuntimeException;
 
-final class StdoutLogger extends AbstractLogger
+final class StderrLogger extends AbstractLogger
 {
     /**
-     * Logs to stdout with an arbitrary level.
+     * Logs to stderr with an arbitrary level.
      *
      * @param mixed                   $level
      * @param string|Stringable       $message
@@ -30,10 +30,10 @@ final class StdoutLogger extends AbstractLogger
         }
 
         $message = $this->format($level, $message, $context);
-        $success = (bool)file_put_contents('php://stdout', $message);
+        $success = (bool)file_put_contents('php://stderr', $message);
 
         if (!$success) {
-            throw new RuntimeException('Failed to write message to stdout');
+            throw new RuntimeException('Failed to write message to stderr');
         }
     }
 }

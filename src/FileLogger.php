@@ -43,7 +43,7 @@ final class FileLogger extends AbstractLogger
      * @throws InvalidArgumentException If the provided $level is invalid
      */
     #[Override]
-    public function log($level, $message, array $context = []): void
+    public function log(mixed $level, string|Stringable $message, array $context = []): void
     {
         if (!$this->isLevelValid($level)) {
             throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));

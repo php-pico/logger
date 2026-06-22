@@ -11,12 +11,7 @@ use Psr\Log\InvalidArgumentException;
 final class TestLogger extends AbstractLogger
 {
     /** @var list<array{level: mixed, formatted_message: string, message: string|Stringable, context: array<array-key, mixed>}> */
-    protected array $logs;
-
-    public function __construct()
-    {
-        $this->logs = [];
-    }
+    protected array $logs = [];
 
     /**
      * Logs to in-memory array with an arbitrary level.
@@ -51,5 +46,13 @@ final class TestLogger extends AbstractLogger
     public function getLogs(): array
     {
         return $this->logs;
+    }
+
+    /**
+     * Flush the logs.
+     */
+    public function flush(): void
+    {
+        $this->logs = [];
     }
 }

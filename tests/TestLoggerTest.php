@@ -24,4 +24,20 @@ final class TestLoggerTest extends TestCase
         $this->assertCount(1, $logger->getLogs());
         $this->assertEquals($message, $logger->getLogs()[0]['message']);
     }
+
+    #[Test]
+    public function it_can_flush(): void
+    {
+        $message = 'plop';
+
+        $logger = new TestLogger();
+
+        $this->assertCount(0, $logger->getLogs());
+
+        $logger->info($message);
+        $this->assertCount(1, $logger->getLogs());
+
+        $logger->flush();
+        $this->assertCount(0, $logger->getLogs());
+    }
 }

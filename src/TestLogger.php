@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PhpPico\Logger;
 
 use Override;
-use Stringable;
 use Psr\Log\InvalidArgumentException;
+use Stringable;
 
 final class TestLogger extends AbstractLogger
 {
@@ -27,20 +27,20 @@ final class TestLogger extends AbstractLogger
     public function log(mixed $level, string|Stringable $message, array $context = []): void
     {
         if (!$this->isLevelValid($level)) {
-            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));
+            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string) $level));
         }
 
         $this->logs[] = [
-            'level'             => $level,
+            'level' => $level,
             'formatted_message' => $this->format($level, $message, $context),
-            'message'           => $message,
-            'context'           => $context,
+            'message' => $message,
+            'context' => $context,
         ];
     }
 
     /**
      * Get logs.
-     * 
+     *
      * @return list<array{level: mixed, formatted_message: string, message: string|Stringable, context: array<array-key, mixed>}>
      */
     public function getLogs(): array

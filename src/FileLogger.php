@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PhpPico\Logger;
 
 use Override;
-use Stringable;
 use Psr\Log\InvalidArgumentException;
 use RuntimeException;
+use Stringable;
 
 final class FileLogger extends AbstractLogger
 {
@@ -55,7 +55,7 @@ final class FileLogger extends AbstractLogger
     public function log(mixed $level, string|Stringable $message, array $context = []): void
     {
         if (!$this->isLevelValid($level)) {
-            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));
+            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string) $level));
         }
 
         $file = fopen($this->getFilePath(), 'a+');
@@ -64,7 +64,7 @@ final class FileLogger extends AbstractLogger
         }
 
         fseek($file, 0);
-        if (trim((string)fread($file, 32))) {
+        if (trim((string) fread($file, 32))) {
             fwrite($file, str_repeat(PHP_EOL, $this->newLines));
         }
 

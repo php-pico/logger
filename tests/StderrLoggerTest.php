@@ -2,9 +2,9 @@
 
 namespace PhpPico\Logger\Tests;
 
+use PhpPico\Logger\StderrLogger;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use PhpPico\Logger\StderrLogger;
 
 final class StderrLoggerTest extends TestCase
 {

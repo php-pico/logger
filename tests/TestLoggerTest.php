@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace PhpPico\Logger\Tests;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PhpPico\Logger\TestLogger;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 final class TestLoggerTest extends TestCase
 {

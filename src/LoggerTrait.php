@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpPico\Logger;
 
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerTrait as PsrLoggerTrait;
+use Psr\Log\LogLevel;
 use Stringable;
 use Throwable;
-use Psr\Log\LogLevel;
-use Psr\Log\InvalidArgumentException;
 
 trait LoggerTrait
 {
@@ -34,7 +34,7 @@ trait LoggerTrait
             }
         }
 
-        return strtr((string)$message, $replacements);
+        return strtr((string) $message, $replacements);
     }
 
     /**
@@ -53,7 +53,7 @@ trait LoggerTrait
         }
 
         if (is_scalar($value) || $value instanceof Stringable || $value === null) {
-            return (string)$value;
+            return (string) $value;
         }
 
         return null;
@@ -62,9 +62,9 @@ trait LoggerTrait
     /**
      * Returns if a log level is valid.
      * @see LogLevel
-     * 
+     *
      * @param mixed $level
-     * 
+     *
      * @return bool
      */
     public function isLevelValid(mixed $level): bool
@@ -96,12 +96,12 @@ trait LoggerTrait
     public function format(mixed $level, string|Stringable $message, array $context = []): string
     {
         if (!$this->isLevelValid($level)) {
-            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string)$level));
+            throw new InvalidArgumentException(sprintf('Invalid log level provided: %s', (string) $level));
         }
 
-        return vsprintf("%s [%s] %s", [
+        return vsprintf('%s [%s] %s', [
             date('Y-m-d H:i:s'),
-            (string)$level,
+            (string) $level,
             $this->interpolate($message, $context),
         ]);
     }
